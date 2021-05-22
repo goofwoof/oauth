@@ -1,5 +1,7 @@
 package com.li.oauth.persistence.entity;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -8,7 +10,8 @@ import java.time.LocalDateTime;
 public abstract class BaseEntity implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "open-id")
+    @GenericGenerator(name = "open-id", strategy = "com.li.oauth.persistence.generator.OpenIdGenerator")
     private Long id;
 
     @Column(name = "record_status", columnDefinition = "int default 0")
