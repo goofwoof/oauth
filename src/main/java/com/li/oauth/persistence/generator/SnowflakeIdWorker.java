@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.Objects;
 
 public class SnowflakeIdWorker {
     private static final Logger log = LoggerFactory.getLogger(SnowflakeIdWorker.class);
@@ -155,13 +156,18 @@ public class SnowflakeIdWorker {
     }
 
     private static Long getDataCenterId(){
-        int[] ints = StringUtils.toCodePoints(SystemUtils.getHostName());
-        int sums = 0;
-        for (int i: ints) {
-            sums += i;
-        }
-        log.info("-----------SnowflakeIdWorker getDataCenterId() down--------------");
-        return (long)(sums % 32);
+            log.info("-----------SnowflakeIdWorker getDataCenterId() {}--------------", SystemUtils.getHostName());
+            int[] ints = StringUtils.toCodePoints(SystemUtils.getHostName());
+            if (Objects.isNull(ints)) {
+                log.info("-----------SnowflakeIdWorker getDataCenterId() [host error] down--------------");
+                return RandomUtils.nextLong(0,31);
+            }
+            int sums = 0;
+            for (int i: ints) {
+                sums += i;
+            }
+            log.info("-----------SnowflakeIdWorker getDataCenterId() down--------------");
+            return (long)(sums % 32);
     }
 
 
