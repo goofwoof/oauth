@@ -7,6 +7,7 @@ import com.li.oauth.service.OauthClientService;
 import com.li.oauth.service.RoleService;
 import com.li.oauth.service.UserAccountService;
 import com.li.oauth.utils.CheckPasswordStrength;
+import com.li.oauth.utils.UuidCreateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -106,7 +107,7 @@ public class SignInAndUpController {
         userAccount.getRoles().add(userRole);
         userAccount.setUsername(StringEscapeUtils.escapeHtml4(username));
         userAccount.setPassword(passwordEncoder.encode(password));
-        userAccount.setAccountOpenCode(UUID.randomUUID().toString());
+        userAccount.setAccountOpenCode(UuidCreateUtils.createUserOpenId());
         try {
             userAccountService.create(userAccount);
             //移除验证码

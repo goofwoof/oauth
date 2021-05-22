@@ -8,7 +8,7 @@ import com.li.oauth.domain.LoginHistory;
 import com.li.oauth.domain.ResponseResult;
 import com.li.oauth.service.LoginHistoryService;
 import com.li.oauth.service.UserAccountService;
-import com.li.oauth.utils.ClientIpUtil;
+import com.li.oauth.utils.ClientIpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
         LoginHistory loginHistory = new LoginHistory();
         loginHistory.setUsername(username);
-        loginHistory.setIp(ClientIpUtil.getIpAddress(request));
+        loginHistory.setIp(ClientIpUtils.getIpAddress(request));
         loginHistory.setDevice(request.getHeader("User-Agent"));
         loginHistory.setRecordStatus(0);
         loginHistory.setRemarks(exception.getMessage());

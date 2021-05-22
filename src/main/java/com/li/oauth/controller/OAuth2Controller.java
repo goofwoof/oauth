@@ -8,6 +8,7 @@ import com.li.oauth.service.ScopeDefinitionService;
 import com.li.oauth.token.AuthorizationCodeTokenGranter;
 import com.li.oauth.token.PasswordTokenGranter;
 import com.li.oauth.token.RefreshTokenGranter;
+import com.li.oauth.utils.UuidCreateUtils;
 import io.jsonwebtoken.Jwts;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Controller
@@ -139,8 +141,8 @@ public class OAuth2Controller {
         }
 
         if ("1".equals(client.getAutoApprove())) {
-            String uuid = UUID.randomUUID().toString().replace("-", "");
-            cacheManager.getCache(CachesEnum.Oauth2AuthorizationCodeCache.name()).put(uuid, authentication);
+            String uuid = UuidCreateUtils.createUniqueCode();
+            Objects.requireNonNull(cacheManager.getCache(CachesEnum.Oauth2AuthorizationCodeCache.name())).put(uuid, authentication);
             if (client.getWebServerRedirectUri().indexOf("?") > 0) {
                 return "redirect:" + client.getWebServerRedirectUri() + "&code=" + uuid + "&state=" + state;
             } else {
@@ -184,8 +186,8 @@ public class OAuth2Controller {
         model.put("from", referer);
 
         if (userOauthApproval) {
-            String uuid = UUID.randomUUID().toString().replace("-", "");
-            cacheManager.getCache(CachesEnum.Oauth2AuthorizationCodeCache.name()).put(uuid, authentication);
+            String uuid = UuidCreateUtils.createUniqueCode();
+            Objects.requireNonNull(cacheManager.getCache(CachesEnum.Oauth2AuthorizationCodeCache.name())).put(uuid, authentication);
             if (client.getWebServerRedirectUri().indexOf("?") > 0) {
                 return "redirect:" + client.getWebServerRedirectUri() + "&code=" + uuid + "&state=" + state;
             } else {

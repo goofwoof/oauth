@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
-public class DateUtil {
+public class DateUtils {
     public static boolean beforeToday(Date date) {
 
         Calendar calendar = Calendar.getInstance();

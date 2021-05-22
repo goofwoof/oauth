@@ -1,6 +1,6 @@
 package com.li.oauth;
 
-import com.li.oauth.utils.JsonUtil;
+import com.li.oauth.utils.JsonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -95,7 +95,7 @@ public class ServerExceptionHandler {
                 ";\nexception =" + ex.getMessage() +
                 ";\nuri =" + uri +
                 ";\ncontent Type =" + request.getHeader("content-type") +
-                ";\nrequest parameters =" + JsonUtil.multiValueMapToJsonString(parameters), ex);
+                ";\nrequest parameters =" + JsonUtils.multiValueMapToJsonString(parameters), ex);
         } catch (Exception e) {
             log.error("ControllerAdvice log  Exception", e);
         }

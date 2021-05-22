@@ -1,7 +1,7 @@
 package com.li.oauth;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.li.oauth.utils.JsonUtil;
+import com.li.oauth.utils.JsonUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -70,7 +70,7 @@ public class OAuth2Test {
 
         String jsonString = response.getBody();
         log.info("getToken:" + jsonString);
-        Map<String, String> result = JsonUtil.jsonStringToObject(jsonString, new TypeReference<Map<String, String>>() {
+        Map<String, String> result = JsonUtils.jsonStringToObject(jsonString, new TypeReference<Map<String, String>>() {
         });
 //  输出结果
         return result;
@@ -94,7 +94,7 @@ public class OAuth2Test {
         String jsonString = response.getBody();
         log.info("checkToken:" + jsonString);
 
-        Map<String, Object> result = JsonUtil.jsonStringToObject(response.getBody(), new TypeReference<Map<String, Object>>() {
+        Map<String, Object> result = JsonUtils.jsonStringToObject(response.getBody(), new TypeReference<Map<String, Object>>() {
         });
 //  输出结果
 
@@ -120,7 +120,7 @@ public class OAuth2Test {
         ResponseEntity<String> response = client.exchange(url, HttpMethod.POST, requestEntity, String.class);
         String jsonString = response.getBody();
         log.info("refreshToken:" + jsonString);
-        Map<String, String> result = JsonUtil.jsonStringToObject(response.getBody(), new TypeReference<Map<String, String>>() {
+        Map<String, String> result = JsonUtils.jsonStringToObject(response.getBody(), new TypeReference<Map<String, String>>() {
         });
 //  输出结果
         return result.get("access_token");

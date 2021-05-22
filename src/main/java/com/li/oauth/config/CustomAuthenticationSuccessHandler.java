@@ -9,7 +9,7 @@ import com.li.oauth.domain.ResponseResult;
 import com.li.oauth.domain.RoleEnum;
 import com.li.oauth.service.LoginHistoryService;
 import com.li.oauth.service.UserAccountService;
-import com.li.oauth.utils.ClientIpUtil;
+import com.li.oauth.utils.ClientIpUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -49,7 +49,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
         LoginHistory loginHistory = new LoginHistory();
         loginHistory.setUsername(authentication.getName());
-        loginHistory.setIp(ClientIpUtil.getIpAddress(request));
+        loginHistory.setIp(ClientIpUtils.getIpAddress(request));
         loginHistory.setDevice(request.getHeader("User-Agent"));
         loginHistory.setRecordStatus(1);
         loginHistoryService.asyncCreate(loginHistory);

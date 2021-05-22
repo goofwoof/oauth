@@ -3,6 +3,7 @@ package com.li.oauth.token;
 import com.li.oauth.domain.OAuth2Exception;
 import com.li.oauth.domain.OauthClient;
 import com.li.oauth.domain.UserInfo;
+import com.li.oauth.utils.UuidCreateUtils;
 import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.security.KeyPair;
 import java.time.LocalDateTime;
@@ -20,7 +22,6 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PasswordTokenGranter implements TokenGranter {
@@ -55,13 +56,11 @@ public class PasswordTokenGranter implements TokenGranter {
         ((AbstractAuthenticationToken) userAuth).setDetails(parameters);
         try {
             userAuth = authenticationManager.authenticate(userAuth);
-        } catch (AccountStatusException ase) {
+        } catch (AccountStatusException | BadCredentialsException ase) {
             //covers expired, locked, disabled cases (mentioned in section 5.2, draft 31)
             throw new OAuth2Exception(ase.getMessage(), HttpStatus.UNAUTHORIZED, "invalid_request");
-        } catch (BadCredentialsException e) {
-            // If the username/password are wrong the spec says we should send 400/invalid grant
-            throw new OAuth2Exception(e.getMessage(), HttpStatus.UNAUTHORIZED, "invalid_request");
-        }
+        } // If the username/password are wrong the spec says we should send 400/invalid grant
+
         if (userAuth == null || !userAuth.isAuthenticated()) {
             throw new OAuth2Exception("Could not authenticate user: " + username, HttpStatus.UNAUTHORIZED, "invalid_request");
         }
@@ -70,7 +69,7 @@ public class PasswordTokenGranter implements TokenGranter {
         Date refreshTokenExpiration = Date.from(LocalDateTime.now().plusSeconds(client.getAccessTokenValidity()).atZone(ZoneId.systemDefault()).toInstant());
 
         UserInfo userInfo = (UserInfo) userAuth.getPrincipal();
-        String tokenId = UUID.randomUUID().toString();
+        String tokenId = UuidCreateUtils.createTokenCode();
         String accessToken = Jwts.builder()
             .setHeaderParam("alg", "HS256")
             .setHeaderParam("typ", "JWT")
@@ -78,7 +77,7 @@ public class PasswordTokenGranter implements TokenGranter {
             .setIssuer(issuer)
             .setSubject(userInfo.getUsername())
             .setAudience(clientId)
-            .claim("roles", userInfo.getAuthorities().stream().map(e -> e.getAuthority()).collect(Collectors.toList()))
+            .claim("roles", userInfo.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
             .setExpiration(tokenExpiration)
             .setNotBefore(now)
             .setIssuedAt(now)
@@ -94,11 +93,11 @@ public class PasswordTokenGranter implements TokenGranter {
             .setIssuer(issuer)
             .setSubject(userInfo.getUsername())
             .setAudience(clientId)
-            .claim("roles", userInfo.getAuthorities().stream().map(e -> e.getAuthority()).collect(Collectors.toList()))
+            .claim("roles", userInfo.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
             .setExpiration(refreshTokenExpiration)
             .setNotBefore(now)
             .setIssuedAt(now)
-            .setId(UUID.randomUUID().toString())
+            .setId(UuidCreateUtils.createTokenCode())
             .signWith(keyPair.getPrivate())
             .compact();
 

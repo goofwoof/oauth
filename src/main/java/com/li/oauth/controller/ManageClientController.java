@@ -5,6 +5,7 @@ import com.li.oauth.domain.JsonObjects;
 import com.li.oauth.domain.OauthClient;
 import com.li.oauth.domain.ResponseResult;
 import com.li.oauth.service.OauthClientService;
+import com.li.oauth.utils.UuidCreateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -101,6 +102,7 @@ public class ManageClientController {
             } else {
                 OauthClient object = new OauthClient();
                 object.setClientId(clientId);
+                object.setOauthClientOpenCode(UuidCreateUtils.createOauthClientOpenId());
                 object.setClientSecret(passwordEncoder.encode(StringUtils.trim(clientSecret)));
                 object.setAuthorities(authorities);
                 object.setScope(scope);

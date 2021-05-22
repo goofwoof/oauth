@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class OauthClient extends BaseDomain {
     private static final long serialVersionUID = 8626957691648832578L;
     private String clientId;
+    private String oauthClientOpenCode;
     private String applicationName;
     private String resourceIds;
     private String clientSecret;

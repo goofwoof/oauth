@@ -1,7 +1,7 @@
 package com.li.oauth;
 
-import com.li.oauth.utils.ClientIpUtil;
-import com.li.oauth.utils.JsonUtil;
+import com.li.oauth.utils.ClientIpUtils;
+import com.li.oauth.utils.JsonUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -49,18 +49,18 @@ public class WebRequestLogAspect {
                     String parametersString = null;
                     String requestBody = null;
                     if (parameters != null) {
-                        parametersString = JsonUtil.multiValueMapToJsonString(parameters);
+                        parametersString = JsonUtils.multiValueMapToJsonString(parameters);
                     }
                     MethodSignature signature = (MethodSignature) joinPoint.getSignature();
                     //获取被拦截的方法
                     Method method = signature.getMethod();
                     Object object = getAnnotatedParameterValueRequestBody(method, joinPoint.getArgs());
                     if (object != null) {
-                        requestBody = JsonUtil.objectToJsonString(object);
+                        requestBody = JsonUtils.objectToJsonString(object);
                     }
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("\nRequest from = ");
-                    stringBuffer.append(ClientIpUtil.getIpAddress(request));
+                    stringBuffer.append(ClientIpUtils.getIpAddress(request));
                     stringBuffer.append(";\n");
                     stringBuffer.append("uri = ");
                     stringBuffer.append(request.getRequestURL().toString());
@@ -79,7 +79,7 @@ public class WebRequestLogAspect {
                     stringBuffer.append(";\n");
 
                     log.info(stringBuffer.toString());
-                    String headers = JsonUtil.objectToJsonString(getHeadersInfo(request));
+                    String headers = JsonUtils.objectToJsonString(getHeadersInfo(request));
                     log.info("headers:" + headers);
                 } catch (Exception e) {
                     log.info("log http request Exception: ", e);
@@ -93,7 +93,7 @@ public class WebRequestLogAspect {
         // 处理完请求，返回内容
         if (log.isInfoEnabled()) {
             try {
-                log.info("Response from server : \n" + JsonUtil.objectToJsonString(ret));
+                log.info("Response from server : \n" + JsonUtils.objectToJsonString(ret));
             } catch (Exception e) {
                 log.info("log http response Exception:\n ", e);
             }

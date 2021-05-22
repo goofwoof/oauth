@@ -3,7 +3,7 @@ package com.li.oauth;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.li.oauth.domain.UserAccount;
 import com.li.oauth.utils.CheckPasswordStrength;
-import com.li.oauth.utils.JsonUtil;
+import com.li.oauth.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ public class SimpleTest {
         UserAccount userAccount = new UserAccount();
         userAccount.setDateCreated(nowDateTime);
         userAccount.setBirthday(LocalDate.now());
-        System.out.println(JsonUtil.objectToJsonString(userAccount));
+        System.out.println(JsonUtils.objectToJsonString(userAccount));
     }
 
 }

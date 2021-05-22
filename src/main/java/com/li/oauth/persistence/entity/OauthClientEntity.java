@@ -15,6 +15,8 @@ public class OauthClientEntity extends BaseEntity {
     private static final long serialVersionUID = -3042356579574873614L;
     @Column(nullable = false)
     private String clientId;
+    @Column(nullable = false)
+    private String oauthClientOpenCode;
     private String applicationName;
     private String resourceIds;
     @Column(nullable = false)
@@ -34,6 +36,13 @@ public class OauthClientEntity extends BaseEntity {
      */
     private LocalDateTime expirationDate;
 
+    public String getOauthClientOpenCode() {
+        return oauthClientOpenCode;
+    }
+
+    public void setOauthClientOpenCode(String oauthClientOpenCode) {
+        this.oauthClientOpenCode = oauthClientOpenCode;
+    }
 
     public String getClientId() {
         return clientId;

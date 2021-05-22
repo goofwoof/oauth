@@ -10,7 +10,7 @@ import com.li.oauth.persistence.entity.UserAccountEntity;
 import com.li.oauth.persistence.repository.RoleRepository;
 import com.li.oauth.persistence.repository.UserAccountRepository;
 import com.li.oauth.service.UserAccountService;
-import com.li.oauth.utils.DateUtil;
+import com.li.oauth.utils.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -159,7 +159,7 @@ public class UserAccountServiceImpl implements UserAccountService {
             if (userAccountEntity.getFailureTime() == null) {
                 userAccountEntity.setFailureCount(1);
             } else {
-                if (DateUtil.beforeToday(userAccountEntity.getFailureTime())) {
+                if (DateUtils.beforeToday(userAccountEntity.getFailureTime())) {
                     userAccountEntity.setFailureCount(0);
                 } else {
                     userAccountEntity.setFailureCount(userAccountEntity.getFailureCount() + 1);

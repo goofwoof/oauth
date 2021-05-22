@@ -2,7 +2,7 @@ package com.li.oauth.utils;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class ClientIpUtil {
+public class ClientIpUtils {
     public static String getIpAddress(HttpServletRequest request) {
         String ip;
         ip = request.getHeader("X-Forwarded-For");

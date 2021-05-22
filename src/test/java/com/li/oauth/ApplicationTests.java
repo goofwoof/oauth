@@ -3,7 +3,8 @@ package com.li.oauth;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.li.oauth.persistence.entity.UserAccountEntity;
 import com.li.oauth.persistence.repository.UserAccountRepository;
-import com.li.oauth.utils.JsonUtil;
+import com.li.oauth.utils.JsonUtils;
+import com.li.oauth.utils.UuidCreateUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -44,12 +45,12 @@ public class ApplicationTests {
         UserAccountEntity userAccountEntity = new UserAccountEntity();
         userAccountEntity.setUsername(RandomStringUtils.randomAlphabetic(10));
         userAccountEntity.setPassword(passwordEncoder.encode("tgb.258"));
-        userAccountEntity.setAccountOpenCode(UUID.randomUUID().toString());
+        userAccountEntity.setAccountOpenCode(UuidCreateUtils.createUserOpenId());
         LocalDate date = LocalDate.of(1988, 6, 6);
         userAccountEntity.setBirthday(date);
         userAccountRepository.save(userAccountEntity);
 
-        System.out.println(JsonUtil.objectToJsonString(userAccountEntity));
+        System.out.println(JsonUtils.objectToJsonString(userAccountEntity));
         System.out.println("---------------------------");
 
     }

@@ -1,5 +1,6 @@
 package com.li.oauth.controller;
 
+import com.li.oauth.utils.UuidCreateUtils;
 import com.revengemission.commons.captcha.core.VerificationCodeUtil;
 import com.li.oauth.config.CachesEnum;
 import com.li.oauth.service.CaptchaService;
@@ -45,7 +46,7 @@ public class CaptchaController {
 
         Map<String, Object> resultMap = new HashMap<>(16);
 
-        String uuid = UUID.randomUUID().toString();
+        String uuid = UuidCreateUtils.createUniqueCode();
         String captcha = VerificationCodeUtil.generateVerificationCode(4, null);
 
         resultMap.put("status", 1);
@@ -83,7 +84,7 @@ public class CaptchaController {
                 return resultMap;
             }
 
-            String uuid = UUID.randomUUID().toString();
+            String uuid = UuidCreateUtils.createUniqueCode();
             String smsCaptcha = RandomStringUtils.randomNumeric(4);
 
             captchaService.saveCaptcha(CachesEnum.SmsCaptchaCache, uuid, phone + "_" + smsCaptcha);

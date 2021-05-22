@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.li.oauth.domain.GlobalConstant;
 import com.li.oauth.domain.ResponseResult;
-import com.li.oauth.utils.ClientIpUtil;
+import com.li.oauth.utils.ClientIpUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,7 +26,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request,
                        HttpServletResponse response, AccessDeniedException e) throws IOException {
         //服务器地址
-        String toUrl = ClientIpUtil.getFullRequestUrl(request);
+        String toUrl = ClientIpUtils.getFullRequestUrl(request);
         boolean isAjax = "XMLHttpRequest".equals(request
             .getHeader("X-Requested-With")) || "apiLogin".equals(request
             .getHeader("api-login"));

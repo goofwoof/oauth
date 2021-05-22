@@ -1,6 +1,7 @@
 package com.li.oauth.token;
 
 import com.li.oauth.domain.OauthClient;
+import com.li.oauth.utils.UuidCreateUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class RefreshTokenGranter implements TokenGranter {
             Date now = new Date();
             Date tokenExpiration = Date.from(LocalDateTime.now().plusSeconds(client.getAccessTokenValidity()).atZone(ZoneId.systemDefault()).toInstant());
             Date refreshTokenExpiration = Date.from(LocalDateTime.now().plusSeconds(client.getRefreshTokenValidity()).atZone(ZoneId.systemDefault()).toInstant());
-            String tokenId = UUID.randomUUID().toString();
+            String tokenId = UuidCreateUtils.createTokenCode();
             claims.setId(tokenId);
             claims.setIssuedAt(now);
             claims.setExpiration(tokenExpiration);
