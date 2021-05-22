@@ -3,11 +3,14 @@ package com.li.oauth.persistence.generator;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 
 public class SnowflakeIdWorker {
+    private static final Logger log = LoggerFactory.getLogger(SnowflakeIdWorker.class);
     // ==============================Fields===========================================
     /** 开始时间截 (2015-01-01) */
     private final long twepoch = 1489111610226L;
@@ -54,6 +57,7 @@ public class SnowflakeIdWorker {
     private static final SnowflakeIdWorker idWorker;
 
     static {
+        log.info("-----------SnowflakeIdWorker init begin--------------");
         idWorker = new SnowflakeIdWorker(getWorkId(),getDataCenterId());
     }
 
@@ -141,9 +145,11 @@ public class SnowflakeIdWorker {
             for(int b : ints){
                 sums += b;
             }
+            log.info("-----------SnowflakeIdWorker getWorkId() down--------------");
             return (long)(sums % 32);
         } catch (UnknownHostException e) {
             // 如果获取失败，则使用随机数备用
+            log.info("-----------SnowflakeIdWorker getWorkId() [catch error] down--------------");
             return RandomUtils.nextLong(0,31);
         }
     }
@@ -154,6 +160,7 @@ public class SnowflakeIdWorker {
         for (int i: ints) {
             sums += i;
         }
+        log.info("-----------SnowflakeIdWorker getDataCenterId() down--------------");
         return (long)(sums % 32);
     }
 
