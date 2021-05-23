@@ -1,6 +1,7 @@
 package com.li.oauth.token;
 
-import com.li.oauth.domain.OAuth2Exception;
+import com.li.oauth.ErrorCodeConstant;
+import com.li.oauth.domain.Exception.OAuth2Exception;
 import com.li.oauth.domain.OauthClient;
 import com.li.oauth.domain.UserInfo;
 import com.li.oauth.utils.UuidCreateUtils;
@@ -25,7 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PasswordTokenGranter implements TokenGranter {
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final String GRANT_TYPE = "password";
     private final AuthenticationManager authenticationManager;
     KeyPair keyPair;
@@ -41,7 +42,7 @@ public class PasswordTokenGranter implements TokenGranter {
     public Map<String, Object> grant(OauthClient client, String grantType, Map<String, String> parameters) {
 
         Map<String, Object> result = new HashMap<>();
-        result.put("status", 0);
+        result.put("errorCode", ErrorCodeConstant.TOKEN_GRANT_ERROR);
 
         String username = parameters.get("username");
         String password = parameters.get("password");
@@ -58,11 +59,11 @@ public class PasswordTokenGranter implements TokenGranter {
             userAuth = authenticationManager.authenticate(userAuth);
         } catch (AccountStatusException | BadCredentialsException ase) {
             //covers expired, locked, disabled cases (mentioned in section 5.2, draft 31)
-            throw new OAuth2Exception(ase.getMessage(), HttpStatus.UNAUTHORIZED, "invalid_request");
+            throw new OAuth2Exception(ase.getMessage(), HttpStatus.UNAUTHORIZED, ErrorCodeConstant.TOKEN_GRANT_ERROR);
         } // If the username/password are wrong the spec says we should send 400/invalid grant
 
         if (userAuth == null || !userAuth.isAuthenticated()) {
-            throw new OAuth2Exception("Could not authenticate user: " + username, HttpStatus.UNAUTHORIZED, "invalid_request");
+            throw new OAuth2Exception("Could not authenticate user: " + username, HttpStatus.UNAUTHORIZED, ErrorCodeConstant.TOKEN_GRANT_ERROR);
         }
         Date now = new Date();
         Date tokenExpiration = Date.from(LocalDateTime.now().plusSeconds(client.getAccessTokenValidity()).atZone(ZoneId.systemDefault()).toInstant());
@@ -108,7 +109,7 @@ public class PasswordTokenGranter implements TokenGranter {
         result.put("accountOpenCode", userInfo.getAccountOpenCode());
         result.put("scope", scope);
         result.put("jti", tokenId);
-        result.put("status", 1);
+        result.put("errorCode", ErrorCodeConstant.DEFAULT_SUCCESS);
         return result;
     }
 }

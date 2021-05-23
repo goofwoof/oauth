@@ -1,7 +1,8 @@
 package com.li.oauth.controller;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.li.oauth.domain.EntityNotFoundException;
+import com.li.oauth.ErrorCodeConstant;
+import com.li.oauth.domain.Exception.EntityNotFoundException;
 import com.li.oauth.domain.UserAccount;
 import com.li.oauth.service.UserAccountService;
 import io.jsonwebtoken.Claims;
@@ -88,11 +89,11 @@ public class ProfileController {
                     if (log.isDebugEnabled()) {
                         log.debug("exception", e);
                     }
-                    result.put("status", 0);
+                    result.put("errorCode", ErrorCodeConstant.TOKEN_ERROR);
                     result.put("message", e.getMessage());
                 }
             } else {
-                result.put("status", 0);
+                result.put("errorCode", ErrorCodeConstant.PARAM_INVALID);
                 result.put("message", "未检测到access_token");
             }
 
@@ -101,7 +102,7 @@ public class ProfileController {
             if (log.isInfoEnabled()) {
                 log.info("/user/me exception", e);
             }
-            result.put("status", 0);
+            result.put("errorCode", ErrorCodeConstant.TOKEN_EXPIRED);
             result.put("message", "access_token无效");
         }
 

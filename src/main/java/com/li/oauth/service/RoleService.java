@@ -1,6 +1,6 @@
 package com.li.oauth.service;
 
-import com.li.oauth.domain.NotImplementException;
+import com.li.oauth.domain.Exception.NotImplementException;
 import com.li.oauth.domain.Role;
 
 public interface RoleService extends com.li.oauth.service.CommonServiceInterface<Role> {

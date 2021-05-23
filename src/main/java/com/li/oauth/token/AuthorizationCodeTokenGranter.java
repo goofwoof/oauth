@@ -1,7 +1,8 @@
 package com.li.oauth.token;
 
+import com.li.oauth.ErrorCodeConstant;
 import com.li.oauth.config.CachesEnum;
-import com.li.oauth.domain.OAuth2Exception;
+import com.li.oauth.domain.Exception.OAuth2Exception;
 import com.li.oauth.domain.OauthClient;
 import com.li.oauth.domain.UserInfo;
 import com.li.oauth.utils.UuidCreateUtils;
@@ -20,7 +21,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class AuthorizationCodeTokenGranter implements TokenGranter {
@@ -41,14 +41,14 @@ public class AuthorizationCodeTokenGranter implements TokenGranter {
     public Map<String, Object> grant(OauthClient client, String grantType, Map<String, String> parameters) {
 
         Map<String, Object> result = new HashMap<>();
-        result.put("status", 0);
+        result.put("errorCode", ErrorCodeConstant.PARAM_INVALID);
 
         String authorizationCode = parameters.get("code");
         String redirectUri = parameters.get("redirect_uri");
         String clientId = parameters.get("client_id");
         String scope = parameters.get("scope");
         if (authorizationCode == null) {
-            throw new OAuth2Exception("An authorization code must be supplied.", HttpStatus.BAD_REQUEST, "invalid_request");
+            throw new OAuth2Exception("An authorization code must be supplied.", HttpStatus.BAD_REQUEST, ErrorCodeConstant.TOKEN_CODE_EXPIRED);
         }
         Cache.ValueWrapper storedCode = Objects.requireNonNull(cacheManager.getCache(CachesEnum.Oauth2AuthorizationCodeCache.name())).get(authorizationCode);
         if (storedCode != null) {
@@ -103,10 +103,10 @@ public class AuthorizationCodeTokenGranter implements TokenGranter {
             result.put("accountOpenCode", userInfo.getAccountOpenCode());
             result.put("scope", scope);
             result.put("jti", tokenId);
-            result.put("status", 1);
+            result.put("errorCode", ErrorCodeConstant.DEFAULT_SUCCESS);
             return result;
         } else {
-            throw new OAuth2Exception("Authorization code was expired.", HttpStatus.BAD_REQUEST, "invalid_request");
+            throw new OAuth2Exception("Authorization code was expired.", HttpStatus.BAD_REQUEST, ErrorCodeConstant.TOKEN_EXPIRED);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.li.oauth.service.impl;
 
 import com.github.dozermapper.core.Mapper;
-import com.li.oauth.domain.AlreadyExistsException;
+import com.li.oauth.domain.Exception.AlreadyExistsException;
 import com.li.oauth.domain.JsonObjects;
 import com.li.oauth.domain.LoginHistory;
 import com.li.oauth.persistence.entity.LoginHistoryEntity;

@@ -1,7 +1,7 @@
 package com.li.oauth.service.impl;
 
 import com.github.dozermapper.core.Mapper;
-import com.li.oauth.domain.NotImplementException;
+import com.li.oauth.domain.Exception.NotImplementException;
 import com.li.oauth.domain.Role;
 import com.li.oauth.persistence.entity.RoleEntity;
 import com.li.oauth.persistence.repository.RoleRepository;

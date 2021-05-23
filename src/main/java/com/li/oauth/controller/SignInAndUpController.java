@@ -2,6 +2,7 @@ package com.li.oauth.controller;
 
 import com.li.oauth.config.CachesEnum;
 import com.li.oauth.domain.*;
+import com.li.oauth.domain.Exception.AlreadyExistsException;
 import com.li.oauth.service.CaptchaService;
 import com.li.oauth.service.OauthClientService;
 import com.li.oauth.service.RoleService;
@@ -21,11 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.UUID;
-
 @Controller
 public class SignInAndUpController {
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     UserAccountService userAccountService;

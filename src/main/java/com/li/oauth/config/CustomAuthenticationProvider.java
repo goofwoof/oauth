@@ -1,7 +1,7 @@
 package com.li.oauth.config;
 
 import com.li.oauth.domain.GlobalConstant;
-import com.li.oauth.domain.VerificationCodeException;
+import com.li.oauth.domain.Exception.VerificationCodeException;
 import com.li.oauth.service.CaptchaService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,13 +20,13 @@ import java.util.Map;
 
 public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private boolean passwordCaptcha;
+    private final boolean passwordCaptcha;
 
-    private UserDetailsService userService;
+    private final UserDetailsService userService;
 
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    private CaptchaService captchaService;
+    private final CaptchaService captchaService;
 
     public CustomAuthenticationProvider(UserDetailsService userService, PasswordEncoder passwordEncoder, CaptchaService captchaService, boolean passwordCaptcha) {
         this.passwordCaptcha = passwordCaptcha;

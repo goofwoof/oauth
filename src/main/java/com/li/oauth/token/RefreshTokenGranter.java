@@ -1,5 +1,6 @@
 package com.li.oauth.token;
 
+import com.li.oauth.ErrorCodeConstant;
 import com.li.oauth.domain.OauthClient;
 import com.li.oauth.utils.UuidCreateUtils;
 import io.jsonwebtoken.Claims;
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class RefreshTokenGranter implements TokenGranter {
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final String GRANT_TYPE = "refresh_token";
     private final AuthenticationManager authenticationManager;
@@ -34,7 +35,7 @@ public class RefreshTokenGranter implements TokenGranter {
     public Map<String, Object> grant(OauthClient client, String grantType, Map<String, String> parameters) {
 
         Map<String, Object> result = new HashMap<>();
-        result.put("status", 0);
+        result.put("errorCode", ErrorCodeConstant.TOKEN_GRANT_ERROR);
 
         String refreshToken = parameters.get("refresh_token");
 
@@ -80,7 +81,7 @@ public class RefreshTokenGranter implements TokenGranter {
             result.put("accountOpenCode", claims.get("accountOpenCode"));
             result.put("scope", "user_info");
             result.put("jti", tokenId);
-            result.put("status", 1);
+            result.put("errorCode", ErrorCodeConstant.DEFAULT_SUCCESS);
         } catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.debug("exception", e);

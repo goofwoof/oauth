@@ -1,5 +1,6 @@
 package com.li.oauth.controller;
 
+import com.li.oauth.ErrorCodeConstant;
 import com.li.oauth.utils.UuidCreateUtils;
 import com.revengemission.commons.captcha.core.VerificationCodeUtil;
 import com.li.oauth.config.CachesEnum;
@@ -20,16 +21,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Controller
 public class CaptchaController {
 
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private CaptchaService captchaService;
+    private final CaptchaService captchaService;
 
-    private UserAccountService userAccountService;
+    private final UserAccountService userAccountService;
 
     @Autowired
     public CaptchaController(CaptchaService captchaService, UserAccountService userAccountService) {
@@ -49,7 +49,7 @@ public class CaptchaController {
         String uuid = UuidCreateUtils.createUniqueCode();
         String captcha = VerificationCodeUtil.generateVerificationCode(4, null);
 
-        resultMap.put("status", 1);
+        resultMap.put("errorCode", ErrorCodeConstant.DEFAULT_SUCCESS);
         resultMap.put("ttl", CachesEnum.GraphCaptchaCache.getTtl());
         resultMap.put("graphId", uuid);
         resultMap.put("graphUrl", "/captcha/graph/print?graphId=" + uuid);
@@ -79,7 +79,7 @@ public class CaptchaController {
         if (StringUtils.equalsIgnoreCase(inputCaptcha, captcha)) {
 
             if (StringUtils.equalsIgnoreCase(signType, "signIn") && !userAccountService.existsByUsername(phone)) {
-                resultMap.put("status", 0);
+                resultMap.put("errorCode", ErrorCodeConstant.USER_ACCOUNT_ERROR);
                 resultMap.put("message", "账号不存在");
                 return resultMap;
             }
@@ -92,12 +92,12 @@ public class CaptchaController {
             log.info("smsCaptcha=" + smsCaptcha);
             // TODO send sms smsCaptcha
 
-            resultMap.put("status", 1);
+            resultMap.put("errorCode", ErrorCodeConstant.DEFAULT_SUCCESS);
             resultMap.put("smsId", uuid);
             resultMap.put("ttl", CachesEnum.SmsCaptchaCache.getTtl());
             captchaService.removeCaptcha(CachesEnum.GraphCaptchaCache, graphId);
         } else {
-            resultMap.put("status", 0);
+            resultMap.put("errorCode", ErrorCodeConstant.PARAM_INVALID);
             resultMap.put("message", "验证码错误！");
         }
 
@@ -151,10 +151,10 @@ public class CaptchaController {
         String captcha = captchaService.getCaptcha(CachesEnum.GraphCaptchaCache, graphId);
         if (captcha != null) {
             String base64EncodedGraph = VerificationCodeUtil.outputImage(width, height, captcha);
-            resultMap.put("status", 1);
+            resultMap.put("errorCode", ErrorCodeConstant.DEFAULT_SUCCESS);
             resultMap.put("base64EncodedGraph", base64EncodedGraph);
         } else {
-            resultMap.put("status", 0);
+            resultMap.put("errorCode", ErrorCodeConstant.CAPTCHAR_EXPIRED);
             resultMap.put("message", "验证码编号无效！");
         }
         return resultMap;

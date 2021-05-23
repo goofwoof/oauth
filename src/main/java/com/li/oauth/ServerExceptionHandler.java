@@ -31,7 +31,7 @@ public class ServerExceptionHandler {
         logRequest(ex, httpStatus, request);
         HttpHeaders headers = new HttpHeaders();
         Map<String, Object> responseResult = new HashMap<>(16);
-        responseResult.put("status", httpStatus.value());
+        responseResult.put("errorCode", ErrorCodeConstant.HANDLER_NOT_FOUND);
         responseResult.put("message", ex.getMessage());
         responseResult.put("url", request.getRequestURL());
         return new ResponseEntity<>(responseResult, headers, httpStatus);
@@ -47,7 +47,7 @@ public class ServerExceptionHandler {
         logRequest(ex, httpStatus, request);
         HttpHeaders headers = new HttpHeaders();
         Map<String, Object> responseResult = new HashMap<>(16);
-        responseResult.put("status", httpStatus.value());
+        responseResult.put("errorCode", ErrorCodeConstant.HANDLER_FORBIDDEN);
         responseResult.put("error", httpStatus.getReasonPhrase());
         responseResult.put("timestamp", new Date());
         responseResult.put("message", ex.getMessage());
@@ -71,7 +71,7 @@ public class ServerExceptionHandler {
         logRequest(ex, httpStatus, request);
         HttpHeaders headers = new HttpHeaders();
         Map<String, Object> responseResult = new HashMap<>(16);
-        responseResult.put("status", httpStatus.value());
+        responseResult.put("errorCode", ErrorCodeConstant.INTERNAL_ERROR);
         responseResult.put("error", httpStatus.getReasonPhrase());
         responseResult.put("timestamp", new Date());
         responseResult.put("message", ex.getMessage());

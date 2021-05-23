@@ -1,8 +1,6 @@
 package com.li.oauth.controller;
 
-import com.li.oauth.domain.ResponseResult;
 import com.li.oauth.service.ScopeDefinitionService;
-import com.li.oauth.service.impl.ScopeDefinitionServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +22,6 @@ public class ScopeController {
     @ResponseBody
     @GetMapping("/query")
     public ResponseEntity<Object> handleOauthSignUp() {
-        return new ResponseEntity(scopeDefinitionService.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(scopeDefinitionService.findAll(), HttpStatus.OK);
     }
 }

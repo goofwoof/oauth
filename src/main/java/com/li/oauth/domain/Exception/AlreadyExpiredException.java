@@ -1,4 +1,4 @@
-package com.li.oauth.domain;
+package com.li.oauth.domain.Exception;
 
 public class AlreadyExpiredException extends RuntimeException {
     /**

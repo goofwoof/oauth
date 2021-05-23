@@ -1,10 +1,10 @@
 package com.li.oauth.service;
 
 
-import com.li.oauth.domain.AlreadyExistsException;
-import com.li.oauth.domain.EntityNotFoundException;
+import com.li.oauth.domain.Exception.AlreadyExistsException;
+import com.li.oauth.domain.Exception.EntityNotFoundException;
 import com.li.oauth.domain.JsonObjects;
-import com.li.oauth.domain.NotImplementException;
+import com.li.oauth.domain.Exception.NotImplementException;
 
 import java.util.List;
 

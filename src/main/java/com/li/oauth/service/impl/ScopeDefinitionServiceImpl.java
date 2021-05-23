@@ -1,7 +1,7 @@
 package com.li.oauth.service.impl;
 
 import com.github.dozermapper.core.Mapper;
-import com.li.oauth.domain.NotImplementException;
+import com.li.oauth.domain.Exception.NotImplementException;
 import com.li.oauth.domain.ScopeDefinition;
 import com.li.oauth.persistence.entity.ScopeDefinitionEntity;
 import com.li.oauth.persistence.repository.ScopeDefinitionRepository;
@@ -9,7 +9,6 @@ import com.li.oauth.service.ScopeDefinitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

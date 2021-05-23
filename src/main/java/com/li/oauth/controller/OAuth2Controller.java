@@ -1,5 +1,6 @@
 package com.li.oauth.controller;
 
+import com.li.oauth.ErrorCodeConstant;
 import com.li.oauth.config.CachesEnum;
 import com.li.oauth.domain.OauthClient;
 import com.li.oauth.domain.ScopeDefinition;
@@ -82,7 +83,7 @@ public class OAuth2Controller {
         HttpHeaders headers = new HttpHeaders();
 
         if (client == null) {
-            result.put("status", 0);
+            result.put("errorCode", ErrorCodeConstant.CLIENT_NOT_FOUND);
             result.put("code", "invalid_client");
             result.put("message", "invalid_client");
             return new ResponseEntity<>(
@@ -103,7 +104,7 @@ public class OAuth2Controller {
             result = passwordTokenGranter.grant(client, "password", parameters);
         } else if (StringUtils.equalsIgnoreCase(grant_type, "authorization_code")) {
             if (StringUtils.isEmpty(redirect_uri) || !StringUtils.equalsIgnoreCase(client.getWebServerRedirectUri(), redirect_uri)) {
-                result.put("status", 0);
+                result.put("errorCode", ErrorCodeConstant.PARAM_INVALID);
                 result.put("code", "invalid_redirect_uri");
                 result.put("message", "invalid_redirect_uri");
                 return new ResponseEntity<>(
@@ -113,7 +114,7 @@ public class OAuth2Controller {
         } else if (StringUtils.equalsIgnoreCase(grant_type, "refresh_token")) {
             result = refreshTokenGranter.grant(client, grant_type, parameters);
         } else {
-            result.put("status", 0);
+            result.put("errorCode", ErrorCodeConstant.PARAM_INVALID);
             result.put("message", "不支持的grant类型");
         }
         return new ResponseEntity<>(
@@ -200,9 +201,9 @@ public class OAuth2Controller {
         Map<String, Object> result = new HashMap<>(16);
         try {
             Jwts.parserBuilder().setSigningKey(keyPair.getPublic()).build().parseClaimsJws(access_token).getBody();
-            result.put("status", 1);
+            result.put("errorCode", ErrorCodeConstant.DEFAULT_SUCCESS);
         } catch (Exception e) {
-            result.put("status", 0);
+            result.put("errorCode", ErrorCodeConstant.TOKEN_ERROR);
             result.put("message", "access_token 无效");
             if (log.isErrorEnabled()) {
                 log.error("验证token异常", e);
