@@ -9,6 +9,10 @@ import com.li.oauth.service.ScopeDefinitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class ScopeDefinitionServiceImpl implements ScopeDefinitionService {
 
@@ -28,4 +32,11 @@ public class ScopeDefinitionServiceImpl implements ScopeDefinitionService {
         }
     }
 
+    @Override
+    public List<ScopeDefinition> findAll() {
+        List<ScopeDefinitionEntity> all = scopeDefinitionRepository.findAll();
+        return all.stream()
+                .map(scopeDefinitionEntity -> dozerMapper.map(scopeDefinitionEntity, ScopeDefinition.class))
+                .collect(Collectors.toList());
+    }
 }

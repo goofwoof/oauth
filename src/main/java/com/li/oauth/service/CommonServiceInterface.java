@@ -6,6 +6,8 @@ import com.li.oauth.domain.EntityNotFoundException;
 import com.li.oauth.domain.JsonObjects;
 import com.li.oauth.domain.NotImplementException;
 
+import java.util.List;
+
 public interface CommonServiceInterface<T> {
 
 
@@ -33,6 +35,10 @@ public interface CommonServiceInterface<T> {
     }
 
     default void updateRecordStatus(long id, int recordStatus) {
+        throw new NotImplementException();
+    }
+
+    default List<T> findAll() {
         throw new NotImplementException();
     }
 }
