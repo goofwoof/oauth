@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ class JwkSetEndpoint implements InitializingBean {
         jwk.put("kty", publicKey.getAlgorithm());
         jwk.put("n", n);
         jwk.put("e", e);
-        jwksData.put("keys", Arrays.asList(jwk));
+        jwksData.put("keys", Collections.singletonList(jwk));
         return jwksData;
     }
 
