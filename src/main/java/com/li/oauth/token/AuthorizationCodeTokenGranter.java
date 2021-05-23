@@ -106,7 +106,7 @@ public class AuthorizationCodeTokenGranter implements TokenGranter {
             result.put("status", 1);
             return result;
         } else {
-            throw new OAuth2Exception("An authorization code must be supplied.", HttpStatus.BAD_REQUEST, "invalid_request");
+            throw new OAuth2Exception("Authorization code was expired.", HttpStatus.BAD_REQUEST, "invalid_request");
         }
     }
 }

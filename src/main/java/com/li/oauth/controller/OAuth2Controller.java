@@ -40,7 +40,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/oauth")
 public class OAuth2Controller {
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     OauthClientService oauthClientService;
@@ -50,9 +50,9 @@ public class OAuth2Controller {
 
     CacheManager cacheManager;
 
-    private AuthenticationManager authenticationManager;
-    private KeyPair keyPair;
-    private String issuerUri;
+    private final AuthenticationManager authenticationManager;
+    private final KeyPair keyPair;
+    private final String issuerUri;
 
     PasswordTokenGranter passwordTokenGranter;
     RefreshTokenGranter refreshTokenGranter;
@@ -72,7 +72,6 @@ public class OAuth2Controller {
     public ResponseEntity<Map<String, Object>> getAccessToken(@RequestParam(value = "client_id", required = false) String client_id,
                                                               @RequestParam(value = "client_secret", required = false) String client_secret,
                                                               @RequestParam(value = "grant_type") String grant_type,
-                                                              @RequestParam(value = "scope", required = false) String scope,
                                                               @RequestParam(value = "redirect_uri", required = false) String redirect_uri,
                                                               @RequestParam(value = "refresh_token", required = false) String refresh_token,
                                                               @RequestParam(value = "code", required = false) String code,
@@ -94,7 +93,7 @@ public class OAuth2Controller {
         parameters.put("client_id", client_id);
         parameters.put("client_secret", client_secret);
         parameters.put("grant_type", grant_type);
-        parameters.put("scope", scope);
+        parameters.put("scope", client.getScope());
         parameters.put("redirect_uri", redirect_uri);
         parameters.put("refresh_token", refresh_token);
         parameters.put("code", code);
@@ -126,9 +125,6 @@ public class OAuth2Controller {
                                  Authentication authentication,
                                  @RequestHeader(name = "referer", required = false) String referer,
                                  @RequestParam(value = "client_id") String client_id,
-                                 @RequestParam(value = "response_type") String response_type,
-                                 @RequestParam(value = "state", required = false) String state,
-                                 @RequestParam(value = "scope", required = false) String scopes,
                                  @RequestParam(value = "redirect_uri") String redirect_uri) {
         OauthClient client = oauthClientService.findByClientId(client_id);
 
@@ -144,19 +140,18 @@ public class OAuth2Controller {
             String uuid = UuidCreateUtils.createUniqueCode();
             Objects.requireNonNull(cacheManager.getCache(CachesEnum.Oauth2AuthorizationCodeCache.name())).put(uuid, authentication);
             if (client.getWebServerRedirectUri().indexOf("?") > 0) {
-                return "redirect:" + client.getWebServerRedirectUri() + "&code=" + uuid + "&state=" + state;
+                return "redirect:" + client.getWebServerRedirectUri() + "&code=" + uuid;
             } else {
-                return "redirect:" + client.getWebServerRedirectUri() + "?code=" + uuid + "&state=" + state;
+                return "redirect:" + client.getWebServerRedirectUri() + "?code=" + uuid;
             }
         } else {
 
             model.put("client_id", client_id);
             model.put("applicationName", client.getApplicationName());
             model.put("from", referer);
-            model.put("state", state);
             model.put("redirect_uri", redirect_uri);
             Map<String, String> scopeMap = new LinkedHashMap<>();
-            for (String scope : scopes.split(",")) {
+            for (String scope : client.getScope().split(",")) {
                 ScopeDefinition scopeDefinition = scopeDefinitionService.findByScope(scope);
                 if (scopeDefinition != null) {
                     scopeMap.put("scope." + scope, scopeDefinition.getDefinition());
@@ -175,9 +170,6 @@ public class OAuth2Controller {
                                   Authentication authentication,
                                   @RequestParam(name = "referer", required = false) String referer,
                                   @RequestParam(value = "client_id") String client_id,
-                                  @RequestParam(value = "response_type", required = false) String response_type,
-                                  @RequestParam(value = "state", required = false) String state,
-                                  @RequestParam(value = "scope", required = false) String scope,
                                   @RequestParam(value = "user_oauth_approval", required = false, defaultValue = "false") boolean userOauthApproval,
                                   @RequestParam(value = "redirect_uri") String redirect_uri) {
         OauthClient client = oauthClientService.findByClientId(client_id);
@@ -189,15 +181,15 @@ public class OAuth2Controller {
             String uuid = UuidCreateUtils.createUniqueCode();
             Objects.requireNonNull(cacheManager.getCache(CachesEnum.Oauth2AuthorizationCodeCache.name())).put(uuid, authentication);
             if (client.getWebServerRedirectUri().indexOf("?") > 0) {
-                return "redirect:" + client.getWebServerRedirectUri() + "&code=" + uuid + "&state=" + state;
+                return "redirect:" + client.getWebServerRedirectUri() + "&code=" + uuid;
             } else {
-                return "redirect:" + client.getWebServerRedirectUri() + "?code=" + uuid + "&state=" + state;
+                return "redirect:" + client.getWebServerRedirectUri() + "?code=" + uuid;
             }
         } else {
             if (redirect_uri.indexOf("?") > 0) {
-                return "redirect:" + redirect_uri + "&state=" + state + "&error=not_approval";
+                return "redirect:" + redirect_uri + "&error=not_approval";
             } else {
-                return "redirect:" + redirect_uri + "&state=" + state + "?error=not_approval";
+                return "redirect:" + redirect_uri + "?error=not_approval";
             }
         }
     }
