@@ -33,10 +33,10 @@ import java.util.regex.Pattern;
 @Controller
 public class ProfileController {
 
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
-    private static final Pattern AUTHORIZATION_PATTERN = Pattern.compile("^[B|b]]earer (?<token>[a-zA-Z0-9-._~+/]+)=*$");
+    private static final Pattern AUTHORIZATION_PATTERN = Pattern.compile("^[B|b]earer (?<token>[a-zA-Z0-9-._~+/]+)=*$");
 
     @Autowired
     UserAccountService userAccountService;
