@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -46,9 +48,9 @@ public class ProfileController {
 
     @ResponseBody
     @RequestMapping("/user/me")
-    public Map<String, Object> info(@RequestParam(value = "access_token", required = false) String paramToken,
-                                    @RequestHeader(value = "Authorization", required = false) String headerToken,
-                                    @CookieValue(value = "access_token", required = false) String cookieToken) {
+    public ResponseEntity<Map<String, Object>> info(@RequestParam(value = "access_token", required = false) String paramToken,
+                                                    @RequestHeader(value = "Authorization", required = false) String headerToken,
+                                                    @CookieValue(value = "access_token", required = false) String cookieToken) {
         Map<String, Object> result = new HashMap<>(16);
         try {
             String token = null;
@@ -80,9 +82,8 @@ public class ProfileController {
                     if (StringUtils.isNotEmpty(userAccount.getNickName())) {
                         result.put("nickName", userAccount.getNickName());
                     }
-                    result.put("accountOpenCode", "" + userAccount.getId());
+                    result.put("accountOpenCode", "" + userAccount.getAccountOpenCode());
                     result.put("authorities", claims.get("roles"));
-                    result.put("status", 1);
                 } catch (Exception e) {
                     if (log.isDebugEnabled()) {
                         log.debug("exception", e);
@@ -104,7 +105,7 @@ public class ProfileController {
             result.put("message", "access_token无效");
         }
 
-        return result;
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping(value = {"", "/", "/user/profile"})
