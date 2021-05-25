@@ -40,7 +40,7 @@ public class ManageClientController {
                                                 @RequestParam(value = "start", defaultValue = "0") Integer start,
                                                 @RequestParam(value = "sortField", required = false, defaultValue = "id") String sortField,
                                                 @RequestParam(value = "sortOrder", required = false, defaultValue = "desc") String sortOrder) {
-        int pageNum = start / 10 + 1;
+        int pageNum = start / pageSize + 1;
         JsonObjects<OauthClient> result = oauthClientService.list(pageNum, pageSize, sortField, sortOrder);
         result.setDraw(draw + 1);
         return result;
@@ -111,9 +111,7 @@ public class ManageClientController {
                 object.setRemarks(remarks);
                 oauthClientService.create(object);
             }
-
         }
-
         return responseResult;
     }
 

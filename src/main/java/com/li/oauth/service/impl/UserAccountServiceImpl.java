@@ -4,6 +4,8 @@ import com.github.dozermapper.core.Mapper;
 import com.li.oauth.domain.Exception.AlreadyExistsException;
 import com.li.oauth.domain.Exception.EntityNotFoundException;
 import com.li.oauth.domain.JsonObjects;
+import com.li.oauth.domain.RoleEnum;
+import com.li.oauth.domain.ScopeDefinition;
 import com.li.oauth.domain.UserAccount;
 import com.li.oauth.persistence.entity.RoleEntity;
 import com.li.oauth.persistence.entity.UserAccountEntity;
@@ -11,9 +13,11 @@ import com.li.oauth.persistence.repository.RoleRepository;
 import com.li.oauth.persistence.repository.UserAccountRepository;
 import com.li.oauth.service.UserAccountService;
 import com.li.oauth.utils.DateUtils;
+import com.li.oauth.utils.JpaPageUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserAccountServiceImpl implements UserAccountService {
@@ -43,13 +50,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     @Override
     public JsonObjects<UserAccount> listByUsername(String username, int pageNum, int pageSize, String sortField, String sortOrder) {
         JsonObjects<UserAccount> jsonObjects = new JsonObjects<>();
-        Sort sort;
-        if (StringUtils.equalsIgnoreCase(sortOrder, "asc")) {
-            sort = Sort.by(Sort.Direction.ASC, sortField);
-        } else {
-            sort = Sort.by(Sort.Direction.DESC, sortField);
-        }
-        Pageable pageable = PageRequest.of(pageNum - 1, pageSize, sort);
+        Pageable pageable = JpaPageUtils.createPageable(pageNum, pageSize, sortField, sortOrder);
         Page<UserAccountEntity> page;
         if (StringUtils.isBlank(username)) {
             page = userAccountRepository.findAll(pageable);
@@ -171,5 +172,13 @@ public class UserAccountServiceImpl implements UserAccountService {
             }
             userAccountRepository.save(userAccountEntity);
         }
+    }
+
+    @Override
+    public List<UserAccount> findAllDevelopers(Pageable page) {
+        Page<UserAccountEntity> allDevelopers = userAccountRepository.findByRolesIn(Collections.singletonList(RoleEnum.ROLE_DEVELOPER.name()), page);
+        return allDevelopers.stream()
+                .map(userAccountEntity -> dozerMapper.map(userAccountEntity, UserAccount.class))
+                .collect(Collectors.toList());
     }
 }

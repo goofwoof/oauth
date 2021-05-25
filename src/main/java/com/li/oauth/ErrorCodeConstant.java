@@ -34,25 +34,30 @@ public abstract class ErrorCodeConstant {
     /**
      * handler 未定义
      */
-    public static final Integer HANDLER_NOT_FOUND = 1000100;
+    public static final Integer HANDLER_NOT_FOUND = 1000101;
     /**
      * handler 禁止
      */
-    public static final Integer HANDLER_FORBIDDEN = 1000101;
+    public static final Integer HANDLER_FORBIDDEN = 1000102;
     /**
      * 参数错误
      */
-    public static final Integer PARAM_INVALID = 1000102;
+    public static final Integer PARAM_INVALID = 1000103;
     /**
      * 验证码过期
      */
-    public static final Integer CAPTCHAR_EXPIRED = 1000103;
+    public static final Integer CAPTCHAR_EXPIRED = 1000104;
 
     /**
      * 账户异常100_02_XX
      * 账户错误
      */
     public static final Integer USER_ACCOUNT_ERROR = 1000200;
+
+    /**
+     *  权限不足
+     */
+    public static final Integer USER_ROLES_ACCESS_DINED = 1000201;
 
     /**
      * Oauth接入CLIENT异常100_03_XX

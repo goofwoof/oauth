@@ -7,6 +7,10 @@ public enum RoleEnum {
      */
     ROLE_USER("普通用户"),
     /**
+     * 开发者
+     */
+    ROLE_DEVELOPER("开发者"),
+    /**
      * 管理员
      */
     ROLE_ADMIN("管理员"),

@@ -3,6 +3,9 @@ package com.li.oauth.service;
 import com.li.oauth.domain.Exception.EntityNotFoundException;
 import com.li.oauth.domain.JsonObjects;
 import com.li.oauth.domain.UserAccount;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface UserAccountService extends com.li.oauth.service.CommonServiceInterface<UserAccount> {
     JsonObjects<UserAccount> listByUsername(String username,
@@ -18,4 +21,6 @@ public interface UserAccountService extends com.li.oauth.service.CommonServiceIn
     void loginSuccess(String username) throws EntityNotFoundException;
 
     void loginFailure(String username);
+
+    List<UserAccount> findAllDevelopers(Pageable page);
 }
