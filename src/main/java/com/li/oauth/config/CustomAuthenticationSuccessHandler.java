@@ -78,8 +78,6 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
                 throw new HttpMessageNotWritableException("Could not write JSON: " + ex.getMessage(), ex);
             }
         } else {
-            //Call the parent method to manage the successful authentication
-///            setDefaultTargetUrl("/");
             if (StringUtils.isNotEmpty(redirectUrl)) {
                 super.onAuthenticationSuccess(request, response, authentication);
             } else {

@@ -4,6 +4,7 @@ import com.li.oauth.domain.GlobalConstant;
 import com.li.oauth.domain.Exception.VerificationCodeException;
 import com.li.oauth.service.CaptchaService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,6 +29,12 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
 
     private final CaptchaService captchaService;
 
+    @Value("${config.check.skipCaptchaCheck:false}")
+    private boolean skipCaptchaCheck;
+
+    @Value("${config.check.skipPasswordCheck:false}")
+    private boolean skipPasswordCheck;
+
     public CustomAuthenticationProvider(UserDetailsService userService, PasswordEncoder passwordEncoder, CaptchaService captchaService, boolean passwordCaptcha) {
         this.passwordCaptcha = passwordCaptcha;
         this.userService = userService;
@@ -44,7 +51,7 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
                 .getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         } else {
             String presentedPassword = authentication.getCredentials().toString();
-            if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
+            if (!skipPasswordCheck && !this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
                 this.logger.debug("Authentication failed: password does not match stored value");
                 throw new BadCredentialsException(this.messages
                     .getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
@@ -55,37 +62,37 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
+        if (!skipCaptchaCheck) {
+            // 添加额外处理，如验证码等
+            Object details = authentication.getDetails();
+            if (details instanceof CustomWebAuthenticationDetails) {
+                CustomWebAuthenticationDetails customWebAuthenticationDetails = (CustomWebAuthenticationDetails) details;
+                String captcha = captchaService.getCaptcha(CachesEnum.GraphCaptchaCache, customWebAuthenticationDetails.getGraphId());
+                if (!StringUtils.equalsIgnoreCase(customWebAuthenticationDetails.getInputVerificationCode(), captcha)) {
+                    throw new VerificationCodeException("验证码错误！");
+                }
+                captchaService.removeCaptcha(CachesEnum.GraphCaptchaCache, customWebAuthenticationDetails.getGraphId());
+            } else if (details instanceof LinkedHashMap<?, ?>) {
 
-        // 添加额外处理，如验证码等
-        Object details = authentication.getDetails();
-        if (details instanceof CustomWebAuthenticationDetails) {
-            CustomWebAuthenticationDetails customWebAuthenticationDetails = (CustomWebAuthenticationDetails) details;
-            String captcha = captchaService.getCaptcha(CachesEnum.GraphCaptchaCache, customWebAuthenticationDetails.getGraphId());
-            if (!StringUtils.equalsIgnoreCase(customWebAuthenticationDetails.getInputVerificationCode(), captcha)) {
-                throw new VerificationCodeException("验证码错误！");
-            }
-            captchaService.removeCaptcha(CachesEnum.GraphCaptchaCache, customWebAuthenticationDetails.getGraphId());
-        } else if (details instanceof LinkedHashMap<?, ?>) {
+                if (passwordCaptcha) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, String> map = (Map<String, String>) details;
+                    if (map.containsKey("grant_type") && StringUtils.equals("password", map.get("grant_type"))) {
 
-            if (passwordCaptcha) {
-                @SuppressWarnings("unchecked")
-                Map<String, String> map = (Map<String, String>) details;
-                if (map.containsKey("grant_type") && StringUtils.equals("password", map.get("grant_type"))) {
+                        if (map.containsKey("graphId") && map.containsKey(GlobalConstant.VERIFICATION_CODE)) {
+                            String graphId = map.get("graphId");
+                            String captcha = captchaService.getCaptcha(CachesEnum.GraphCaptchaCache, graphId);
+                            if (!StringUtils.equalsIgnoreCase(map.get(GlobalConstant.VERIFICATION_CODE), captcha)) {
+                                throw new VerificationCodeException("验证码错误！");
+                            }
+                            captchaService.removeCaptcha(CachesEnum.GraphCaptchaCache, graphId);
 
-                    if (map.containsKey("graphId") && map.containsKey(GlobalConstant.VERIFICATION_CODE)) {
-                        String graphId = map.get("graphId");
-                        String captcha = captchaService.getCaptcha(CachesEnum.GraphCaptchaCache, graphId);
-                        if (!StringUtils.equalsIgnoreCase(map.get(GlobalConstant.VERIFICATION_CODE), captcha)) {
+                        } else {
                             throw new VerificationCodeException("验证码错误！");
                         }
-                        captchaService.removeCaptcha(CachesEnum.GraphCaptchaCache, graphId);
-
-                    } else {
-                        throw new VerificationCodeException("验证码错误！");
                     }
                 }
             }
-
         }
 
         try {

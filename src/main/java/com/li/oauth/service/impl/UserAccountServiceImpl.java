@@ -5,7 +5,6 @@ import com.li.oauth.domain.Exception.AlreadyExistsException;
 import com.li.oauth.domain.Exception.EntityNotFoundException;
 import com.li.oauth.domain.JsonObjects;
 import com.li.oauth.domain.RoleEnum;
-import com.li.oauth.domain.ScopeDefinition;
 import com.li.oauth.domain.UserAccount;
 import com.li.oauth.persistence.entity.RoleEntity;
 import com.li.oauth.persistence.entity.UserAccountEntity;
@@ -17,11 +16,8 @@ import com.li.oauth.utils.JpaPageUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -176,7 +172,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 
     @Override
     public List<UserAccount> findAllDevelopers(Pageable page) {
-        Page<UserAccountEntity> allDevelopers = userAccountRepository.findByRolesIn(Collections.singletonList(RoleEnum.ROLE_DEVELOPER.name()), page);
+        RoleEntity byRoleName = roleRepository.findByRoleName(RoleEnum.ROLE_DEVELOPER.name());
+        Page<UserAccountEntity> allDevelopers = userAccountRepository.findByRolesIn(Collections.singletonList(byRoleName), page);
         return allDevelopers.stream()
                 .map(userAccountEntity -> dozerMapper.map(userAccountEntity, UserAccount.class))
                 .collect(Collectors.toList());

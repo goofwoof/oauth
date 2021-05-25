@@ -1,5 +1,6 @@
 package com.li.oauth.persistence.repository;
 
+import com.li.oauth.persistence.entity.RoleEntity;
 import com.li.oauth.persistence.entity.UserAccountEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,7 @@ public interface UserAccountRepository extends JpaRepository<UserAccountEntity, 
 
     Page<UserAccountEntity> findByUsernameLike(String username, Pageable page);
 
-    Page<UserAccountEntity> findByRolesIn(List<String> roles, Pageable page);
+    Page<UserAccountEntity> findByRolesIn(List<RoleEntity> roles, Pageable page);
 
     boolean existsByUsername(String username);
 }

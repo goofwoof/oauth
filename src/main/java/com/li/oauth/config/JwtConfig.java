@@ -18,7 +18,7 @@ import java.security.cert.CertificateException;
 import java.util.Enumeration;
 
 @Configuration
-public class OthersConfig {
+public class JwtConfig {
     @Value("${jwt.jks.keypass:keypass}")
     String keypass;
 

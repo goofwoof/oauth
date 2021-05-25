@@ -66,12 +66,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-///        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
         http
             .authorizeRequests()
             .mvcMatchers("/favicon.ico", "/signIn", "/signUp", "/security_check", "/404", "/captcha/**", "/user/me", "/oauth/check_token", "/oauth/token", "/.well-known/**").permitAll()
             .mvcMatchers("/oauth/signUp").permitAll()
             .mvcMatchers("/management/**").hasAnyAuthority(RoleEnum.ROLE_SUPER.name())
+            .mvcMatchers("/developer/**").permitAll()//.hasAnyAuthority(RoleEnum.ROLE_SUPER.name(), RoleEnum.ROLE_ADMIN.name(), RoleEnum.ROLE_DEVELOPER.name())
             .anyRequest().authenticated()
             .and()
             .csrf().disable()

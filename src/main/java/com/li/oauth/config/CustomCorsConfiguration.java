@@ -21,8 +21,6 @@ public class CustomCorsConfiguration {
         corsConfiguration.addAllowedMethod("GET");
         corsConfiguration.addAllowedMethod("POST");
         corsConfiguration.addAllowedMethod("OPTIONS");
-///        corsConfiguration.addExposedHeader("head1");
-///        corsConfiguration.addExposedHeader("Location");
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/oauth/**", corsConfiguration);
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/user/me", corsConfiguration);
