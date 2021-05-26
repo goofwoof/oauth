@@ -1,13 +1,19 @@
 package com.li.oauth.service.impl;
 
 import com.github.dozermapper.core.Mapper;
+import com.li.oauth.ErrorCodeConstant;
+import com.li.oauth.domain.ApplyStatusEnum;
 import com.li.oauth.domain.Exception.AlreadyExistsException;
 import com.li.oauth.domain.Exception.EntityNotFoundException;
+import com.li.oauth.domain.Exception.OAuth2Exception;
 import com.li.oauth.domain.JsonObjects;
+import com.li.oauth.domain.RoleApply;
 import com.li.oauth.domain.RoleEnum;
 import com.li.oauth.domain.UserAccount;
+import com.li.oauth.persistence.entity.RoleApplyEntity;
 import com.li.oauth.persistence.entity.RoleEntity;
 import com.li.oauth.persistence.entity.UserAccountEntity;
+import com.li.oauth.persistence.repository.RoleApplyRepository;
 import com.li.oauth.persistence.repository.RoleRepository;
 import com.li.oauth.persistence.repository.UserAccountRepository;
 import com.li.oauth.service.UserAccountService;
@@ -18,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +46,12 @@ public class UserAccountServiceImpl implements UserAccountService {
 
     @Autowired
     Mapper dozerMapper;
+
+    @Autowired
+    RoleApplyRepository roleApplyRepository;
+
+    @Autowired
+    RoleRepository repository;
 
     @Value("${signin.failure.max:5}")
     private int failureMax;
@@ -177,5 +190,24 @@ public class UserAccountServiceImpl implements UserAccountService {
         return allDevelopers.stream()
                 .map(userAccountEntity -> dozerMapper.map(userAccountEntity, UserAccount.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public RoleApply applyRole(String name, RoleEnum roleDeveloper) {
+        RoleApplyEntity roleApplyEntity = new RoleApplyEntity();
+        UserAccountEntity user = userAccountRepository.findByUsername(name);
+        if(user.getRoles().stream().anyMatch(roleEntity -> RoleEnum.ROLE_DEVELOPER.name().equals(roleEntity.getRoleName()))){
+            throw new OAuth2Exception("user is already a developer.", HttpStatus.BAD_REQUEST, ErrorCodeConstant.ROLE_APPLY_ERROR);
+        }
+        RoleEntity role = roleRepository.findByRoleName(roleDeveloper.name());
+        List<RoleApplyEntity> applies = roleApplyRepository.findApply(user.getId(), role.getId());
+        if(applies.stream().anyMatch(roleApply -> roleApply.getStatus().equals(ApplyStatusEnum.REVIEWING.name()))){
+            throw new OAuth2Exception("your apply is waiting for reviewing.", HttpStatus.BAD_REQUEST, ErrorCodeConstant.ROLE_APPLY_ERROR);
+        }
+        roleApplyEntity.setUser(user);
+        roleApplyEntity.setStatus(ApplyStatusEnum.REVIEWING.name());
+        roleApplyEntity.setRole(repository.findByRoleName(RoleEnum.ROLE_DEVELOPER.name()));
+        RoleApplyEntity save = roleApplyRepository.save(roleApplyEntity);
+        return dozerMapper.map(save, RoleApply.class);
     }
 }

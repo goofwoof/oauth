@@ -60,6 +60,11 @@ public abstract class ErrorCodeConstant {
     public static final Integer USER_ROLES_ACCESS_DINED = 1000201;
 
     /**
+    *   角色申请失败
+    */
+    public static final Integer ROLE_APPLY_ERROR = 1000202;
+
+    /**
      * Oauth接入CLIENT异常100_03_XX
      * client不存在
      */

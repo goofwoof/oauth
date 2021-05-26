@@ -2,6 +2,8 @@ package com.li.oauth.service;
 
 import com.li.oauth.domain.Exception.EntityNotFoundException;
 import com.li.oauth.domain.JsonObjects;
+import com.li.oauth.domain.RoleApply;
+import com.li.oauth.domain.RoleEnum;
 import com.li.oauth.domain.UserAccount;
 import org.springframework.data.domain.Pageable;
 
@@ -23,4 +25,6 @@ public interface UserAccountService extends com.li.oauth.service.CommonServiceIn
     void loginFailure(String username);
 
     List<UserAccount> findAllDevelopers(Pageable page);
+
+    RoleApply applyRole(String name, RoleEnum roleDeveloper);
 }
