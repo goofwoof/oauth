@@ -1,7 +1,13 @@
 package com.li.oauth.persistence.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
@@ -31,6 +37,10 @@ public class OauthClientEntity extends BaseEntity {
     private Integer refreshTokenValidity;
     private String additionalInformation;
     private String autoApprove;
+
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", referencedColumnName = "id",foreignKey = @ForeignKey(name = "none",value = ConstraintMode.NO_CONSTRAINT))
+    private UserAccountEntity user;
     /**
      * 客户端过期时间，比如应用于多店系统
      */

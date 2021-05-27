@@ -7,6 +7,8 @@
 package com.li.oauth.persistence.repository;
 
 import com.li.oauth.persistence.entity.RoleApplyEntity;
+import com.li.oauth.persistence.entity.RoleEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -24,4 +26,7 @@ public interface RoleApplyRepository extends JpaRepository<RoleApplyEntity, Long
         value = "SELECT * FROM role_apply_entity u WHERE u.user_id = ?1 and u.role_id = ?2",
         nativeQuery = true)
     List<RoleApplyEntity> findApply(Long userId, Long RoleId);
+
+
+    List<RoleApplyEntity> findALLByRoleInAndStatusIn(List<RoleEntity> roles, List<String> statuses, Pageable page);
 }

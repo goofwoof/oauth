@@ -1,16 +1,9 @@
 package com.li.oauth.controller;
 
-import com.li.oauth.ErrorCodeConstant;
 import com.li.oauth.annotation.Role;
 import com.li.oauth.domain.ApplyStatusEnum;
-import com.li.oauth.domain.Exception.OAuth2Exception;
 import com.li.oauth.domain.RoleApply;
 import com.li.oauth.domain.RoleEnum;
-import com.li.oauth.persistence.entity.RoleApplyEntity;
-import com.li.oauth.persistence.entity.UserAccountEntity;
-import com.li.oauth.persistence.repository.RoleApplyRepository;
-import com.li.oauth.persistence.repository.RoleRepository;
-import com.li.oauth.persistence.repository.UserAccountRepository;
 import com.li.oauth.service.UserAccountService;
 import com.li.oauth.utils.JpaPageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +26,8 @@ public class DeveloperController {
 
     @ResponseBody
     @GetMapping("/queryAll")
-    @Role
-    public ResponseEntity<Object> handleOauthSignUp(@RequestParam(value = "length", defaultValue = "10") Integer pageSize,
+    @Role({RoleEnum.ROLE_ADMIN, RoleEnum.ROLE_SUPER})
+    public ResponseEntity<Object> queryAllDeveloper(@RequestParam(value = "length", defaultValue = "10") Integer pageSize,
                                                     @RequestParam(value = "start", defaultValue = "0") Integer start,
                                                     @RequestParam(value = "sortField", required = false, defaultValue = "id") String sortField,
                                                     @RequestParam(value = "sortOrder", required = false, defaultValue = "desc") String sortOrder) {
@@ -51,13 +44,20 @@ public class DeveloperController {
 
     @PostMapping("/apply/review")
     @Role(value = RoleEnum.ROLE_ADMIN)
-    public ResponseEntity<Object> reviewDeveloperApply(){
-        return null;
+    public ResponseEntity<Object> reviewDeveloperApply(@RequestParam(value = "applyId") Long applyId,
+                                                       @RequestParam(value = "review") Boolean review){
+        userAccountService.reviewRole(applyId, review);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/apply/status")
-    @Role(value = RoleEnum.ROLE_ADMIN)
-    public ResponseEntity<Object> queryDeveloperApplyStatus(){
-        return null;
+    @Role(value = {RoleEnum.ROLE_ADMIN, RoleEnum.ROLE_SUPER})
+    public ResponseEntity<Object> queryDeveloperApplyStatus(@RequestParam(value = "applyStatus", required = false) ApplyStatusEnum applyStatus,
+                                                            @RequestParam(value = "length", defaultValue = "10") Integer pageSize,
+                                                            @RequestParam(value = "start", defaultValue = "0") Integer start,
+                                                            @RequestParam(value = "sortField", required = false, defaultValue = "id") String sortField,
+                                                            @RequestParam(value = "sortOrder", required = false, defaultValue = "desc") String sortOrder){
+        Pageable pageable = JpaPageUtils.createPageableOffset(start, pageSize, sortField, sortOrder);
+        return new ResponseEntity<>(userAccountService.queryDeveloperApplyStatus(applyStatus, pageable), HttpStatus.OK);
     }
 }

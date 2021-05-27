@@ -1,13 +1,18 @@
 package com.li.oauth.controller;
 
+import com.li.oauth.annotation.Role;
 import com.li.oauth.domain.GlobalConstant;
 import com.li.oauth.domain.JsonObjects;
 import com.li.oauth.domain.OauthClient;
 import com.li.oauth.domain.ResponseResult;
+import com.li.oauth.domain.RoleEnum;
 import com.li.oauth.service.OauthClientService;
+import com.li.oauth.utils.JpaPageUtils;
 import com.li.oauth.utils.UuidCreateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping(value = "/management/client")
-public class ManageClientController {
+public class OauthClientController {
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -34,14 +39,16 @@ public class ManageClientController {
 
     @GetMapping(value = "/list")
     @ResponseBody
-    public JsonObjects<OauthClient> listObjects(@RequestParam(value = "searchValue", required = false, defaultValue = "") String searchValue,
+    @Role(value = {RoleEnum.ROLE_ADMIN, RoleEnum.ROLE_SUPER, RoleEnum.ROLE_DEVELOPER})
+    public JsonObjects<OauthClient> listObjects(Authentication authentication,
+                                                @RequestParam(value = "searchValue", required = false, defaultValue = "") String searchValue,
                                                 @RequestParam(value = "draw", defaultValue = "0") int draw,
                                                 @RequestParam(value = "length", defaultValue = "10") Integer pageSize,
                                                 @RequestParam(value = "start", defaultValue = "0") Integer start,
                                                 @RequestParam(value = "sortField", required = false, defaultValue = "id") String sortField,
                                                 @RequestParam(value = "sortOrder", required = false, defaultValue = "desc") String sortOrder) {
-        int pageNum = start / pageSize + 1;
-        JsonObjects<OauthClient> result = oauthClientService.list(pageNum, pageSize, sortField, sortOrder);
+        Pageable pageable = JpaPageUtils.createPageableOffset(start, pageSize, sortField, sortOrder);
+        JsonObjects<OauthClient> result = oauthClientService.list(authentication, pageable);
         result.setDraw(draw + 1);
         return result;
     }

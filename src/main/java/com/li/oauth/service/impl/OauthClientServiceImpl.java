@@ -5,8 +5,11 @@ import com.li.oauth.domain.Exception.AlreadyExistsException;
 import com.li.oauth.domain.Exception.EntityNotFoundException;
 import com.li.oauth.domain.JsonObjects;
 import com.li.oauth.domain.OauthClient;
+import com.li.oauth.domain.RoleEnum;
 import com.li.oauth.persistence.entity.OauthClientEntity;
+import com.li.oauth.persistence.entity.UserAccountEntity;
 import com.li.oauth.persistence.repository.OauthClientRepository;
+import com.li.oauth.persistence.repository.UserAccountRepository;
 import com.li.oauth.service.OauthClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +29,9 @@ public class OauthClientServiceImpl implements OauthClientService {
 
     @Autowired
     OauthClientRepository oauthClientRepository;
+
+    @Autowired
+    UserAccountRepository userAccountRepository;
 
     @Autowired
     Mapper dozerMapper;
@@ -39,17 +47,17 @@ public class OauthClientServiceImpl implements OauthClientService {
     }
 
     @Override
-    public JsonObjects<OauthClient> list(int pageNum, int pageSize, String sortField, String sortOrder) {
+    public JsonObjects<OauthClient> list(Authentication authentication, Pageable pageable) {
         JsonObjects<OauthClient> jsonObjects = new JsonObjects<>();
-        Sort sort;
-        if (StringUtils.equalsIgnoreCase(sortOrder, "asc")) {
-            sort = Sort.by(Sort.Direction.ASC, sortField);
+        Page<OauthClientEntity> page;
+        if (authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(RoleEnum.ROLE_DEVELOPER.name()))) {
+            UserAccountEntity user = userAccountRepository.findByUsername(authentication.getName());
+            page = oauthClientRepository.findAllByUserId(user.getId(),pageable);
         } else {
-            sort = Sort.by(Sort.Direction.DESC, sortField);
+            page = oauthClientRepository.findAll(pageable);
         }
-        Pageable pageable = PageRequest.of(pageNum - 1, pageSize, sort);
-        Page<OauthClientEntity> page = oauthClientRepository.findAll(pageable);
-        if (page.getContent() != null && page.getContent().size() > 0) {
+
+        if (page.getContent().size() > 0) {
             jsonObjects.setRecordsTotal(page.getTotalElements());
             jsonObjects.setRecordsFiltered(page.getTotalElements());
             page.getContent().forEach(u -> jsonObjects.getData().add(dozerMapper.map(u, OauthClient.class)));

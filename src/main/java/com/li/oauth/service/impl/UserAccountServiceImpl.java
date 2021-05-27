@@ -26,12 +26,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -66,7 +69,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         } else {
             page = userAccountRepository.findByUsernameLike(username + "%", pageable);
         }
-        if (page.getContent() != null && page.getContent().size() > 0) {
+        if (page.getContent().size() > 0) {
             jsonObjects.setRecordsTotal(page.getTotalElements());
             jsonObjects.setRecordsFiltered(page.getTotalElements());
             page.getContent().forEach(u -> jsonObjects.getData().add(dozerMapper.map(u, UserAccount.class)));
@@ -188,20 +191,20 @@ public class UserAccountServiceImpl implements UserAccountService {
         RoleEntity byRoleName = roleRepository.findByRoleName(RoleEnum.ROLE_DEVELOPER.name());
         Page<UserAccountEntity> allDevelopers = userAccountRepository.findByRolesIn(Collections.singletonList(byRoleName), page);
         return allDevelopers.stream()
-                .map(userAccountEntity -> dozerMapper.map(userAccountEntity, UserAccount.class))
-                .collect(Collectors.toList());
+            .map(userAccountEntity -> dozerMapper.map(userAccountEntity, UserAccount.class))
+            .collect(Collectors.toList());
     }
 
     @Override
     public RoleApply applyRole(String name, RoleEnum roleDeveloper) {
         RoleApplyEntity roleApplyEntity = new RoleApplyEntity();
         UserAccountEntity user = userAccountRepository.findByUsername(name);
-        if(user.getRoles().stream().anyMatch(roleEntity -> RoleEnum.ROLE_DEVELOPER.name().equals(roleEntity.getRoleName()))){
+        if (user.getRoles().stream().anyMatch(roleEntity -> RoleEnum.ROLE_DEVELOPER.name().equals(roleEntity.getRoleName()))) {
             throw new OAuth2Exception("user is already a developer.", HttpStatus.BAD_REQUEST, ErrorCodeConstant.ROLE_APPLY_ERROR);
         }
         RoleEntity role = roleRepository.findByRoleName(roleDeveloper.name());
         List<RoleApplyEntity> applies = roleApplyRepository.findApply(user.getId(), role.getId());
-        if(applies.stream().anyMatch(roleApply -> roleApply.getStatus().equals(ApplyStatusEnum.REVIEWING.name()))){
+        if (applies.stream().anyMatch(roleApply -> roleApply.getStatus().equals(ApplyStatusEnum.REVIEWING.name()))) {
             throw new OAuth2Exception("your apply is waiting for reviewing.", HttpStatus.BAD_REQUEST, ErrorCodeConstant.ROLE_APPLY_ERROR);
         }
         roleApplyEntity.setUser(user);
@@ -209,5 +212,39 @@ public class UserAccountServiceImpl implements UserAccountService {
         roleApplyEntity.setRole(repository.findByRoleName(RoleEnum.ROLE_DEVELOPER.name()));
         RoleApplyEntity save = roleApplyRepository.save(roleApplyEntity);
         return dozerMapper.map(save, RoleApply.class);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void reviewRole(Long applyId, Boolean review) {
+        Optional<RoleApplyEntity> byId = roleApplyRepository.findById(applyId);
+        if (byId.isPresent()) {
+            RoleApplyEntity roleApplyEntity = byId.get();
+            if (review) {
+                UserAccountEntity user = roleApplyEntity.getUser();
+                RoleEntity role = roleApplyEntity.getRole();
+                user.getRoles().add(role);
+                userAccountRepository.save(user);
+                roleApplyEntity.setStatus(ApplyStatusEnum.REJECTED.name());
+                roleApplyRepository.save(roleApplyEntity);
+            }
+        }
+        throw new OAuth2Exception("Empty apply.", HttpStatus.BAD_REQUEST, ErrorCodeConstant.PARAM_INVALID);
+    }
+
+    @Override
+    public List<RoleApply> queryDeveloperApplyStatus(ApplyStatusEnum applyStatus, Pageable pageable) {
+        List<String> strings;
+        if (Objects.isNull(applyStatus)) {
+            strings = ApplyStatusEnum.names();
+        } else {
+            strings = Collections.singletonList(applyStatus.name());
+        }
+        List<RoleApplyEntity> allByRoleInAndStatusIn = roleApplyRepository
+            .findALLByRoleInAndStatusIn(Collections.singletonList(
+                roleRepository.findByRoleName(RoleEnum.ROLE_DEVELOPER.name())), strings, pageable);
+        return allByRoleInAndStatusIn.stream()
+            .map(roleApplyEntity -> dozerMapper.map(roleApplyEntity, RoleApply.class))
+            .collect(Collectors.toList());
     }
 }

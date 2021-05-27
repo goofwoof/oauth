@@ -6,6 +6,10 @@
 
 package com.li.oauth.domain;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @EnumName: ApplyStatusEnum
  * @Description:
@@ -27,6 +31,10 @@ public enum ApplyStatusEnum {
     REJECTED("已驳回");
 
     private String meaning;
+
+    public static List<String> names() {
+        return Arrays.asList(REVIEWING.name(), APPROVED.name(), REJECTED.name());
+    }
 
     public String getMeaning() {
         return meaning;

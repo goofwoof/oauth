@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * @ClassName: RoleApplyInfl
+ * @ClassName: RoleApply
  * @Description:
  * @author: puthlive
  * @date: 2021/5/26
